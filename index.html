@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MapLibre test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.2.0/dist/pmtiles.js"></script>
+<script src="https://unpkg.com/protomaps-themes-base@4.4.1/dist/index.js"></script>
+<script>
+// Register pmtiles protocol
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol('pmtiles', protocol.tile);
+
+const map = new maplibregl.Map({
+  container: 'map',
+  // Load pmtiles file from same dir
+  style: {
+    version: 8,
+    glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
+    sprite: 'https://protomaps.github.io/basemaps-assets/sprites/v4/light',
+    sources: {
+      protomaps: {
+        type: 'vector',
+        url: 'pmtiles://za_mz.pmtiles',
+        attribution: '© OpenStreetMap'
+      }
+    },
+    layers: protomaps_themes_base.default('protomaps', 'light')
+  },
+  center: [31.5, -25],
+  zoom: 7,
+  maxZoom: 11
+});
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+// Add some test markers
+const stops = [
+  [28.04, -26.13, 'JNB'],
+  [31.59, -24.99, 'Skukuza'],
+  [31.92, -25.13, 'Lower Sabie'],
+  [32.86, -26.84, 'Ponta do Ouro']
+];
+map.on('load', () => {
+  stops.forEach(([lng, lat, name]) => {
+    const el = document.createElement('div');
+    el.style.cssText = 'width:14px;height:14px;border-radius:50%;background:#B5421A;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)';
+    new maplibregl.Marker(el).setLngLat([lng, lat]).setPopup(new maplibregl.Popup().setText(name)).addTo(map);
+  });
+});
+</script>
+</body>
+</html>
